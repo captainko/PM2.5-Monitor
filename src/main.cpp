@@ -129,38 +129,6 @@ void loop()
 }
 
 #ifdef USE_AVG
-// int CalAverageVoRaw(int m)
-// {
-//   static int flag_first = 0, _buff[MEASURE_N], sum;
-//   static const int _buff_max = MEASURE_N;
-//   int i;
-
-//   if (flag_first == 0)
-//   {
-//     flag_first = 1;
-
-//     for (i = 0, sum = 0; i < _buff_max; i++)
-//     {
-//       _buff[i] = m;
-//       sum += _buff[i];
-//     }
-//     return m;
-//   }
-//   else
-//   {
-//     sum -= _buff[0];
-//     for (i = 0; i < (_buff_max - 1); i++)
-//     {
-//       _buff[i] = _buff[i + 1];
-//     }
-//     _buff[_buff_max-1] = m;
-//     sum += m;
-
-//     i = sum / _buff_max;
-//     return i;
-//   }
-// }
-
 float calAverageRawVo(int currentVo)
 {
   static int flag_first = 0;
@@ -195,7 +163,6 @@ float calAverageRawVo(int currentVo)
 #endif // USE_AVG
 
 #ifdef USE_LCD
-
 void print_message(float density)
 {
   static LEVEL curLevel = -1;
@@ -215,6 +182,7 @@ void print_message(float density)
     return 5;
   };
 
+  // print the dust level on lcd screen
   static auto print_level = [](const char *level) {
     lcd.setCursor(0, 0);
     lcd.print("                ");
