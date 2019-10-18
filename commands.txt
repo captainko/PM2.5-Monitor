@@ -1,0 +1,8 @@
+// change modes
+AT+CWMODE?
+AT+CWMODE=1 (1/sta  2/ap/ 3/both)
+
+//
+
+// connect to ssid
+AT+CWJAP=”ssid”,”password”

@@ -2,6 +2,7 @@
 // Sharp GP2Y1014AU0F Dust Sensor Demo
 //
 // Board Connection:
+
 //  +GP2Y1014    Arduino
 //   V-LED       Between R1 and C1
 //   LED-GND     C1 and GND
@@ -9,6 +10,7 @@
 //   S-GND       GND
 //   Vo          A5
 //   Vcc         5V
+
 // +LCD(16x2)   Arduino
 //   Vdd         5V
 //   Vss         GND
@@ -18,21 +20,27 @@
 //   D5          Pin 5
 //   D6          Pin 6
 //   D7          Pin 7
+
+// +Esp8266     Arduino
+//  RX           Pin 11
+//  TX           Pin 10
+//  GND          GND
+//  VCC          5v
+//  CH_PD        5v
+
 // Serial monitor setting:
 //   9600 baud
 /////////////////////////////////////////////////////////////////////////////
 #include <Arduino.h>
 #include <SharpDust.h>
+#include <Waiter.h>
 
+// Utils
 #define USE_AVG
 #define USE_LCD
+#define USE_WIFI
 #define PRINT_RAW_DATA
 #define SLEEP_TIME 1000 // ms
-
-#ifdef USE_LCD
-#include <LiquidCrystal.h>
-LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
-#endif //~USE_LCD
 
 // Arduino pin numbers.
 #define LEDPin 12    //  pin D12 -> sensor LED.
@@ -40,11 +48,41 @@ LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 
 #ifdef USE_AVG
 #define MEASURE_N 10
-#endif //USE_AVG
+#endif //~USE_AVG
 
 #ifdef USE_LCD
+#include <LiquidCrystal.h>
 #define LEVEL short int
+LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 #endif //~USE_LCD
+
+#ifdef USE_WIFI
+// #include <SoftwareSerial.h>
+#include <ESP8266.h>
+
+#define WIFI_RX 11
+#define WIFI_TX 10
+#define ssid "High"
+#define pass "thongdeptrai"
+
+ESP8266Class WiFi;
+const String AP = "High";           // your network SSID (name)
+const String PASS = "thongdeptrai"; // your network SSID (name)
+
+// const char pass[] = "thongdeptrai"; // your network password
+
+String API = "XSETYBPX2SC95C5P"; // CHANGE ME
+String HOST = "api.thingspeak.com";
+String PORT = "80";
+String field = "field1";
+int countTrueCommand;
+int countTimeCommand;
+boolean found = false;
+int valSensor = 1;
+
+// Initialize the Ethernet client object
+
+#endif //~USE_WIFI
 
 // Use the typical sensitivity in units of V per 100ug/m3.
 const float K = 0.5;
@@ -86,6 +124,10 @@ void print_message(float density);
 float calAverageRawVo(int m);
 #endif // USE_AVG
 
+#ifdef USE_WIFI
+
+#endif
+
 // ~helpers
 
 void setup()
@@ -96,36 +138,63 @@ void setup()
 #ifdef USE_LCD
   lcd.begin(16, 2);
 #endif //~USE_LCD
-  delay(2000);
+
+#ifdef USE_WIFI
+  // initialize serial for ESP module
+  WiFi.init(115200, WIFI_RX, WIFI_TX);
+  WiFi.begin(AP, PASS);
+#endif //~USE_WIFI
+
+  // delay(2000);
 }
 
 void loop()
 {
-  float VoRaw = SharpDust.getDrawMeasure(10);
+  static float densitySum = 0;
+  static float densityCount = 0;
+  static Waiter delaySensor((unsigned long)SLEEP_TIME);
+  if (delaySensor.isFinished())
+  {
+    float VoRaw = SharpDust.getDrawMeasure(10);
 
 #ifdef USE_AVG
-  VoRaw = calAverageRawVo(VoRaw);
+    VoRaw = calAverageRawVo(VoRaw);
 #endif
-  // Compute the output voltage in Volts.
-  float Vo = VoRaw / 1024.0 * 5.0;
-  printFValue("Vo", Vo * 1000, "mV");
+    // Compute the output voltage in Volts.
+    float Vo = VoRaw / 1024.0 * 5.0;
+    printFValue("Vo", Vo * 1000, "mV");
 
-  // Convert to Dust Density in units of ug/m3.
-  float dV = Vo - Voc;
-  if (dV < 0)
-  {
-    dV = 0;
-    Voc = Vo;
-  }
-  float density = dV / K * 100.0;
-  printFValue("DustDensity", density, "ug/m3", true);
+    // Convert to Dust Density in units of ug/m3.
+    float dV = Vo - Voc;
+    if (dV < 0)
+    {
+      dV = 0;
+      Voc = Vo;
+    }
+    float density = dV / K * 100.0;
+    densitySum += density;
+    densityCount++;
+    printFValue("DustDensity", density, "ug/m3", true);
 
-  Serial.println("");
+    Serial.println("");
 
 #ifdef USE_LCD
-  print_message(density);
+    print_message(density);
 #endif //~ USE_LCD
-  delay(SLEEP_TIME);
+
+    delaySensor.reset();
+  }
+
+#ifdef USE_WIFI
+  static Waiter delaySendData(60 , true);
+  if (delaySendData.isFinished())
+  {
+    WiFi.sendData(HOST, PORT, "GET /update?api_key=" + API + "&" + field + "=" + String(densitySum / densityCount));
+    densityCount = 0;
+    densitySum = 0;
+    delaySendData.reset();
+  }
+#endif
 }
 
 #ifdef USE_AVG
@@ -163,12 +232,20 @@ float calAverageRawVo(int currentVo)
 #endif // USE_AVG
 
 #ifdef USE_LCD
+enum PM25_LEVELS : LEVEL
+{
+  Excellent,
+  Average,
+  Light,
+  Moderate,
+  Heavy,
+  Hazardous
+};
 void print_message(float density)
 {
   static LEVEL curLevel = -1;
-
   // calculate pollution level
-  static auto pollution_level = [](float x) {
+  static auto pollution_level = [](const float &x) {
     if (x <= 35)
       return 0;
     if (x <= 75)
@@ -201,36 +278,23 @@ void print_message(float density)
   curLevel = level;
   switch (level)
   {
-  case 0:
-  {
+  case Excellent:
     print_level("Excellent");
     break;
-  }
-  case 1:
-  {
+  case Average:
     print_level("Average");
     break;
-  }
-  case 2:
-  {
+  case Light:
     print_level("Light Pollution");
     break;
-  }
-  case 3:
-  {
+  case Moderate:
     print_level("Moderate Pollution");
     break;
-  }
-  case 4:
-  {
+  case Heavy:
     print_level("Heavy Pollution");
     break;
-  }
-  case 5:
-  {
+  case Hazardous:
     print_level("Hazardous");
-    break;
-  }
   }
 }
 #endif //~USE_LCD
