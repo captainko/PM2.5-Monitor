@@ -117,11 +117,11 @@ void printFValue(String text, float value, String units, bool isLast = false)
 }
 
 #ifdef USE_LCD
-void print_message(float density);
+void print_message(const float &density);
 #endif //~USE_LCD
 
 #ifdef USE_AVG
-float calAverageRawVo(int m);
+float calAverageRawVo(const int &m);
 #endif // USE_AVG
 
 #ifdef USE_WIFI
@@ -198,7 +198,7 @@ void loop()
 }
 
 #ifdef USE_AVG
-float calAverageRawVo(int currentVo)
+float calAverageRawVo(const int &currentVo)
 {
   static int flag_first = 0;
   static float sum, _buff[MEASURE_N];
@@ -241,7 +241,7 @@ enum PM25_LEVELS : LEVEL
   Heavy,
   Hazardous
 };
-void print_message(float density)
+void print_message(const float &density)
 {
   static LEVEL curLevel = -1;
   // calculate pollution level
@@ -272,6 +272,8 @@ void print_message(float density)
   lcd.print(density);
   lcd.setCursor(6, 1);
   lcd.print("(ug/m3)");
+
+  // skip printing levels 
   if (level == curLevel)
     return;
 

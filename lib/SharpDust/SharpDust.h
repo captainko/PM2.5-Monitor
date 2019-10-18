@@ -14,7 +14,7 @@ class SharpDustClass
 	public:
 		SharpDustClass();
 		void begin(uint8_t ledPin, uint8_t mPin);
-		float getDrawMeasure(int SAMPLING_NUM = 1);
+		float getDrawMeasure(const int &SAMPLING_NUM = 1);
 };
 
 extern SharpDustClass SharpDust;

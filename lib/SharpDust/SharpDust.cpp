@@ -18,7 +18,7 @@ void SharpDustClass::begin(uint8_t lPin, uint8_t mPin)
 	Serial.println("");
 }
 
-float SharpDustClass::getDrawMeasure(int SAMPLING_NUM)
+float SharpDustClass::getDrawMeasure(const int &SAMPLING_NUM)
 {
 	int sum = 0;
 	for (int i = 0; i < SAMPLING_NUM; i++)
