@@ -17,13 +17,13 @@ void ESP8266Class::init(long baud = 115200, uint8_t RX = 10, uint8_t RT = 11)
   esp8266->begin(baud);
 }
 
-void ESP8266Class::begin(String accessPoint, String password) {
+void ESP8266Class::begin(const String &AP, const String &password) {
   sendCommand("AT", 5, "OK");
   sendCommand("AT+CWMODE=1", 5, "OK");
-  sendCommand("AT+CWJAP=\"" + accessPoint + "\",\"" + password + "\"", 20, "OK");
+  sendCommand("AT+CWJAP=\"" + AP + "\",\"" + password + "\"", 20, "OK");
 }
 
-void ESP8266Class::sendData(String host, String port, String data) {
+void ESP8266Class::sendData(const String &host,const String &port,const String &data) {
   sendCommand("AT+CIPMUX=1", 5, "OK");
   sendCommand("AT+CIPSTART=0,\"TCP\",\"" + host + "\"," + port, 15, "OK");
   sendCommand("AT+CIPSEND=0," + String(data.length() + 4), 4, ">");
@@ -32,7 +32,7 @@ void ESP8266Class::sendData(String host, String port, String data) {
   sendCommand("AT+CIPCLOSE=0", 5, "OK");
 }
 
-boolean ESP8266Class::sendCommand(String command, int maxTime, char readReplay[])
+boolean ESP8266Class::sendCommand(const String &command, const int &maxTime, char readReplay[])
 {
   int countTimeCommand = 0;
   bool isFound = false;
