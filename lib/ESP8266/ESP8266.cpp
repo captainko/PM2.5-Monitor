@@ -50,7 +50,7 @@ boolean ESP8266Class::sendCommand(const String &command, const int &maxTime, cha
 
   if (isFound)
   {
-    Serial.println("OYI");
+    Serial.println("OK");
     countTimeCommand = 0;
   } 
   else 

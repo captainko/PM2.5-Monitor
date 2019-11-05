@@ -14,8 +14,8 @@
 // +LCD(16x2)   Arduino
 //   Vdd         5V
 //   Vss         GND
-//   Rs          Pin 8
-//   E           Pin 9
+//   Rs          Pin 2
+//   E           Pin 3
 //   D4          Pin 4
 //   D5          Pin 5
 //   D6          Pin 6
@@ -53,7 +53,7 @@
 #ifdef USE_LCD
 #include <LiquidCrystal.h>
 #define LEVEL short int
-LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
+LiquidCrystal lcd(2, 3, 4, 5, 6, 7);
 #endif //~USE_LCD
 
 #ifdef USE_WIFI
@@ -61,13 +61,15 @@ LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 #include <ESP8266.h>
 
 #define WIFI_RX 11
-#define WIFI_TX 10
+#define WIFI_TX 10  
 #define ssid "High"
 #define pass "thongdeptrai"
 
 ESP8266Class WiFi;
-const String AP = "High";           // your network SSID (name)
-const String PASS = "thongdeptrai"; // your network SSID (name)
+// const String AP = "High";           // your network SSID (name)
+// const String PASS = "thongdeptrai"; // your network SSID (name)
+const String AP = "uittest";
+const String PASS = "uittest123";
 
 // const char pass[] = "thongdeptrai"; // your network password
 
@@ -186,7 +188,7 @@ void loop()
   }
 
 #ifdef USE_WIFI
-  static Waiter delaySendData(60 , true);
+  static Waiter delaySendData(10 , true);
   if (delaySendData.isFinished())
   {
     WiFi.sendData(HOST, PORT, "GET /update?api_key=" + API + "&" + field + "=" + String(densitySum / densityCount));
