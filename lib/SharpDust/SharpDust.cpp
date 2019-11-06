@@ -30,14 +30,12 @@ float SharpDustClass::getDrawMeasure(const int &SAMPLING_NUM)
 
 		// Record the output voltage. This operation takes around 100 microseconds.
 		sum += analogRead(measurePin);
-		// delay to make sure!
-		//  delayMicroseconds(40);
+
 		// Turn off the dust sensor LED by setting digital pin HIGH.
 		digitalWrite(ledPin, HIGH);
 
-		// Wait for remainder of the 10ms cycle = 10000 - 280 - 100 microseconds.
+		// Wait for remainder of the 10ms cycle = 10000 - 320 microseconds.
 		delayMicroseconds(__SHARP_DUST_SLEEP_TIME);
-		// delayMicroseconds(9680);
 	}
 	return sum *1.0/ SAMPLING_NUM;
 }
