@@ -73,9 +73,12 @@ const String PASS = "uittest123";
 
 // const char pass[] = "thongdeptrai"; // your network password
 
-String API = "XSETYBPX2SC95C5P"; // CHANGE ME
-String HOST = "api.thingspeak.com";
-String PORT = "80";
+String TS_HOST = "api.thingspeak.com";
+String TS_PORT = "80";
+String TS_APIKEY = "XSETYBPX2SC95C5P"; // CHANGE ME
+String FB_HOST = "us-central1-airarduino.cloudfunctions.net";
+String FB_PORT = "80";
+String FB_APIKEY = "2yQGq8sKSbxZoLsBq9FdkC76gG249V2k5NkPllkA";
 String field = "field1";
 int countTrueCommand;
 int countTimeCommand;
@@ -191,7 +194,8 @@ void loop()
   static Waiter delaySendData(10 , true);
   if (delaySendData.isFinished())
   {
-    WiFi.sendData(HOST, PORT, "GET /update?api_key=" + API + "&" + field + "=" + String(densitySum / densityCount));
+    WiFi.sendData(TS_HOST, TS_PORT, "GET /update?api_key=" + TS_APIKEY + "&" + field + "=" + String(densitySum / densityCount));
+    WiFi.sendData(FB_HOST, FB_PORT, "GET /api/sensors/dust1/update/?api_key="+ FB_APIKEY + "&" )
     densityCount = 0;
     densitySum = 0;
     delaySendData.reset();
