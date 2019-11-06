@@ -25,8 +25,8 @@
 //  RX           Pin 11
 //  TX           Pin 10
 //  GND          GND
-//  VCC          5v
-//  CH_PD        5v
+//  VCC          3.3v
+//  CH_PD        3.3v
 
 // Serial monitor setting:
 //   9600 baud
