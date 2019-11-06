@@ -1,10 +1,6 @@
 #ifndef __SHARP_DUST_H
 #define __SHARP_DUST_H
 
-#define __SHARP_DUST_SAMPLING_TIME	280
-#define __SHARP_DUST_SLEEP_TIME		9680
-
-
 class SharpDustClass
 {
 	private:
