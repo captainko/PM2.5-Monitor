@@ -1,6 +1,9 @@
 #include "Arduino.h"
 #include "SharpDust.h"
 
+#define SAMPLING_TIME	280
+#define SLEEP_TIME		9680
+
 SharpDustClass::SharpDustClass()
 {
 }
@@ -26,18 +29,16 @@ float SharpDustClass::getDrawMeasure(const int &SAMPLING_NUM)
 		digitalWrite(ledPin, LOW);
 
 		// Wait 0.28ms before taking a reading of the output voltage as per spec.
-		delayMicroseconds(__SHARP_DUST_SAMPLING_TIME);
+		delayMicroseconds(SAMPLING_TIME);
 
 		// Record the output voltage. This operation takes around 100 microseconds.
 		sum += analogRead(measurePin);
-		// delay to make sure!
-		//  delayMicroseconds(40);
+
 		// Turn off the dust sensor LED by setting digital pin HIGH.
 		digitalWrite(ledPin, HIGH);
 
-		// Wait for remainder of the 10ms cycle = 10000 - 280 - 100 microseconds.
-		delayMicroseconds(__SHARP_DUST_SLEEP_TIME);
-		// delayMicroseconds(9680);
+		// Wait for remainder of the 10ms cycle = 10000 - 320 microseconds.
+		delayMicroseconds(SLEEP_TIME);
 	}
 	return sum *1.0/ SAMPLING_NUM;
 }

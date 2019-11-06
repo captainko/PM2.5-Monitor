@@ -25,8 +25,8 @@
 //  RX           Pin 11
 //  TX           Pin 10
 //  GND          GND
-//  VCC          5v
-//  CH_PD        5v
+//  VCC          3.3v
+//  CH_PD        3.3v
 
 // Serial monitor setting:
 //   9600 baud
@@ -66,10 +66,10 @@ LiquidCrystal lcd(2, 3, 4, 5, 6, 7);
 #define pass "thongdeptrai"
 
 ESP8266Class WiFi;
-// const String AP = "High";           // your network SSID (name)
-// const String PASS = "thongdeptrai"; // your network SSID (name)
-const String AP = "uittest";
-const String PASS = "uittest123";
+const String AP = "High";           // your network SSID (name)
+const String PASS = "thongdeptrai"; // your network SSID (name)
+// const String AP = "uittest";
+// const String PASS = "uittest123";
 
 // const char pass[] = "thongdeptrai"; // your network password
 
@@ -157,7 +157,7 @@ void loop()
 {
   static float densitySum = 0;
   static float densityCount = 0;
-  static Waiter delaySensor((unsigned long)SLEEP_TIME);
+  static Waiter delaySensor(1000);
   if (delaySensor.isFinished())
   {
     float VoRaw = SharpDust.getDrawMeasure(10);
@@ -191,7 +191,7 @@ void loop()
   }
 
 #ifdef USE_WIFI
-  static Waiter delaySendData(10 , true);
+  static Waiter delaySendData(10000);
   if (delaySendData.isFinished())
   {
     WiFi.sendData(TS_HOST, TS_PORT, "GET /update?api_key=" + TS_APIKEY + "&" + field + "=" + String(densitySum / densityCount));
