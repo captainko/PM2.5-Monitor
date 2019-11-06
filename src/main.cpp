@@ -66,10 +66,10 @@ LiquidCrystal lcd(2, 3, 4, 5, 6, 7);
 #define pass "thongdeptrai"
 
 ESP8266Class WiFi;
-// const String AP = "High";           // your network SSID (name)
-// const String PASS = "thongdeptrai"; // your network SSID (name)
-const String AP = "uittest";
-const String PASS = "uittest123";
+const String AP = "High";           // your network SSID (name)
+const String PASS = "thongdeptrai"; // your network SSID (name)
+// const String AP = "uittest";
+// const String PASS = "uittest123";
 
 // const char pass[] = "thongdeptrai"; // your network password
 
@@ -154,7 +154,7 @@ void loop()
 {
   static float densitySum = 0;
   static float densityCount = 0;
-  static Waiter delaySensor((unsigned long)SLEEP_TIME);
+  static Waiter delaySensor(1000);
   if (delaySensor.isFinished())
   {
     float VoRaw = SharpDust.getDrawMeasure(10);
@@ -188,7 +188,7 @@ void loop()
   }
 
 #ifdef USE_WIFI
-  static Waiter delaySendData(10 , true);
+  static Waiter delaySendData(10000);
   if (delaySendData.isFinished())
   {
     WiFi.sendData(HOST, PORT, "GET /update?api_key=" + API + "&" + field + "=" + String(densitySum / densityCount));
